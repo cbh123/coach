@@ -67,7 +67,7 @@ Current activity: {description}
         )
         prediction.wait()
         result = "".join(prediction.output)
-        return GoalExtract.parse_raw(result)
+        return GoalExtract.model_validate_json(result)
 
     else:
         model = "ollama/mixtral"
