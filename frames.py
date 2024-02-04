@@ -25,7 +25,9 @@ def record():
 
         # Save the frame as an image file
         print("📸 Say cheese! Saving frame.")
-        path = f"{folder}/frame.jpg"
+
+        timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        path = f"{frames_dir}/screenshot_{timestamp}.jpg"
         cv2.imwrite(path, screenshot_np)
 
         # Wait for 2 seconds

@@ -1,95 +1,269 @@
-import os
 import ollama
-import base64
-import json
 import time
-import errno
-import subprocess
-import tkinter as tk
-from tkinter import simpledialog
+import argparse
+import os
 from frames import record
+from utils import get_active_window_name, send_notification, send_slack_message
 import threading
+from pydantic import BaseModel
+from datetime import datetime
+from litellm import completion
+import instructor
+import replicate
+import base64
+from instructor.patch import wrap_chatcompletion
 
-def send_notification(title, text):
-    osascript_command = f'''
-    display dialog "{text}" with title "{title}" buttons {{"Logs", "Thanks, Coach! Back to work."}} default button 2
-    if the button returned of the result is "Logs" then
-        do shell script "open coaching_responses.txt && tail -n +1 coaching_responses.txt"
-    end if
-    '''
-    subprocess.run(['osascript', '-e', osascript_command])
+completion = wrap_chatcompletion(completion, mode=instructor.Mode.MD_JSON)
 
 
+class GoalExtract(BaseModel):
+    productive: bool
+    explanation: str
 
-def main(goal):
-    while True:
-        print("Running...")
-        with open('./frames/frame.jpg', 'rb') as file:
+
+class Activity(BaseModel):
+    datetime: datetime
+    application: str
+    activity: str
+    image_path: str
+    model: str
+    prompt: str
+    goal: str = None
+    is_productive: bool = None
+    explanation: str = None
+
+
+def coach_based_on_image_description(description, goal, cloud):
+    print("🧠 Coach is thinking...")
+    if cloud:
+        deployment = replicate.deployments.get("cbh123/coach-llama")
+        prediction = deployment.predictions.create(
+            input={
+                "prompt": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if I'm being productive in line with my goals.
+Be loose with your definition of "productive" as long as it matches my goals.
+
+## Example input
+Goal: work on a coding project
+Current activity: The image shows a computer screen with a browser open, and the user is watching YouTube.
+
+## Example output:
+"{{"
+    "productive": False, # This should be "true" if the activity is helping me accomplish my goal, otherwise "false"
+    "explanation": "You are on YouTube. YouTube will not help you accomplish your goals, buddy!", # This should be a helpful message, only required if I am not being productive
+"}}"
+
+## Actual input:
+Goal: {goal}
+Current activity: {description}
+
+## Actual output:""",
+                "jsonschema": """{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "productive": {
+      "type": "boolean",
+      "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
+    },
+    "explanation": {
+      "type": "string",
+      "description": "This should be a helpful description of why I am not productive, only required if productive == false"
+    }
+  },
+  "required": ["productive", "explanation"],
+  "additionalProperties": false
+}
+""",
+            }
+        )
+        prediction.wait()
+        result = "".join(prediction.output)
+        import pdb
+
+        pdb.set_trace()
+        # put result into a GoalExtract object
+        return GoalExtract.model_validate(result)
+
+    else:
+        model = "ollama/mixtral"
+        messages = [
+            {
+                "role": "system",
+                "content": """You are a JSON extractor. Please extract the following JSON, No Talking at all.Just output JSON based on the description. NO TALKING AT ALL!!""",
+            },
+            {
+                "role": "user",
+                "content": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if I'm being productive in line with my goals.
+                Be loose with your definition of "productive" as long as it matches my goals.
+
+                RULES: You must respond in JSON format. DO NOT RESPOND WITH ANY TALKING.
+
+                ## Example input
+                Goal: work on a coding project
+                Current activity: The image shows a computer screen with a browser open, and the user is watching YouTube.
+
+                ## Example output:
+                "{{"
+                    "productive": False, # This should be "true" if the activity is helping me accomplish my goal, otherwise "false"
+                    "explanation": "You are on YouTube. YouTube will not help you accomplish your goals, buddy!", # This should be a helpful message, only required if I am not being productive
+                "}}"
+
+                ## Actual input:
+                Goal: {goal}
+                Current activity: {description}
+
+                ## Actual output:""",
+            },
+        ]
+
+        record = completion(
+            model=model,
+            response_model=GoalExtract,
+            max_retries=5,
+            messages=messages,
+        )
+
+        return record
+
+
+def run_llava(image_path, model, prompt):
+    if "ollama" in model:
+        model = model.split("/")[1]
+        print(f"Running Ollama model {model}")
+        with open(image_path, "rb") as file:
             response = ollama.chat(
-                model='llava:v1.6',
+                model=model,
                 messages=[
-                {
-                    'role': 'user',
-                    'content': 'What is going on on this computer screen?',
-                    'images': [file.read()],
-                },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                        "images": [file.read()],
+                    },
                 ],
             )
-        result = response['message']['content']
+        result = response["message"]["content"]
+        return result
+    else:
+        with open(image_path, "rb") as file:
+            image_data = file.read()
+            encoded_image = base64.b64encode(image_data).decode("utf-8")
+            image_uri = f"data:image/jpeg;base64,{encoded_image}"
+            output = replicate.run(
+                model,
+                input={"image": image_uri, "prompt": prompt},
+            )
+        return "".join([x for x in output])
 
-        print(f"👀 This is what I see: \n{result}\n")
 
-        # Ask mixtral if this is a good idea considering the current goals
-        response = ollama.chat(
-            model='mixtral',
-            messages=[
-                {
-                    'role': 'system',
-                    'content': f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. I'll periodically send you status updates.
-                    Let me know if I'm doing a bad job. You must respond in the format: yes/no;;explanation""",
-                },
-                {
-                    'role': 'user',
-                    'content': f"""
-                    The following describes what I'm doing. Try and choose yes or no, even if you're unsure. Is this a good idea considering my goal of {goal}? You MUST RESPOND in the format: [yes or no];;explanation
+def get_latest_image(directory="./frames"):
+    """
+    Gets the latest image file from the specified directory.
 
-                    Description of what user is doing:
-                    {result}.
-                    """,
-                },
-            ],
+    :param directory: The directory to search for image files.
+    :return: The path to the latest image file.
+    """
+    image_files = os.listdir(directory)
+    image_files.sort(
+        key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True
+    )
+
+    if image_files:
+        return os.path.join(directory, image_files[0])
+    else:
+        return None
+
+
+def main(goal, hard_mode, cloud):
+    print("💪 HARD MODE ACTIVE" if hard_mode else "🐥 Easy mode.")
+    print(
+        "☁️ Running in the cloud on Replicate ☁️"
+        if cloud
+        else "💻 Running locally on Ollama 💻"
+    )
+
+    while True:
+        latest_image = get_latest_image()
+
+        if not latest_image:
+            print("No image found. Waiting for 5 seconds.")
+            time.sleep(5)
+            continue
+
+        llava_model = (
+            "ollama/llava:v1.6"
+            if not cloud
+            else "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
         )
-        coaching_response = response['message']['content']
-        print(f"💡 This is my advice: {coaching_response}")
+        llava_prompt = "What is going on on this computer screen? Keep it very short and concise, and describe as matter of factly as possible."
 
-        # Append the result to a file, including a timestamp in YYYY-MM-DD HH:MM:SS format
-        with open("coaching_responses.txt", "a") as f:
-            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')}\n llava analysis:{result}\ncoaching response:{coaching_response}\n\n")
+        result = run_llava(latest_image, llava_model, llava_prompt)
 
-        # parse the response, if it's a no, send a notification
-        coaching_response = coaching_response.split(";;")
-        is_productive = coaching_response[0].strip().lower()
-        explanation = coaching_response[1].strip()
+        print(f"👀 This is what I see for {latest_image}: {result}\n")
 
-        if is_productive == "no":
-            send_notification("🛑 PROCRASTINATION ALERT 🛑", explanation)
+        # create new Activity object
+        activity = Activity(
+            activity=result,
+            application=get_active_window_name(),
+            datetime=datetime.now(),
+            image_path=latest_image,
+            model=llava_model,
+            prompt=llava_prompt,
+        )
+
+        if goal:
+            # Ask mixtral if this is a good idea considering the current goals
+            try:
+                coaching_response = coach_based_on_image_description(
+                    result, goal, cloud
+                )
+            except Exception as e:
+                print(f"🚨 Error: {e}")
+                break
+
+            print(f"💡 This is my advice: {coaching_response}")
+
+            activity.goal = goal
+            activity.is_productive = coaching_response.productive
+            activity.explanation = coaching_response.explanation
+
+            # Send a notification if the user is not being productive
+            if coaching_response.productive == False:
+                send_notification(
+                    "🛑 PROCRASTINATION ALERT 🛑", coaching_response.explanation
+                )
+
+                if hard_mode:
+                    send_slack_message(
+                        f"🚨 CHARLIE IS PROCRASTINATING! 🚨 He said he wanted to work on {goal} but I see him {result}, which I've determined is not productive because {coaching_response.explanation}",
+                        latest_image,
+                    )
+
+        # save the activity to a file
+        with open("./logs/activities.jsonl", "a") as f:
+            f.write(activity.model_dump_json() + "\n")
 
         time.sleep(3)
 
 
 if __name__ == "__main__":
-    import sys
-    if "--record" in sys.argv:
+    parser = argparse.ArgumentParser(
+        description="Process command line arguments for coach.py"
+    )
+    parser.add_argument("--record", action="store_true", help="Start recording")
+    parser.add_argument("--goal", type=str, help="Enter your goal")
+    parser.add_argument(
+        "--hard", action="store_true", help="Whether or not to go hard mode"
+    )
+    parser.add_argument(
+        "--cloud", action="store_true", help="Whether or not to run in the cloud"
+    )
+
+    args = parser.parse_args()
+
+    if args.record:
         record_thread = threading.Thread(target=record)
         record_thread.start()
 
-    root = tk.Tk()
-    root.withdraw()  # Hide the main window
-    goal = simpledialog.askstring("What's your goal?", "Enter your goal:")
+    goal = args.goal if args.goal else None
 
-    if goal is None:
-        print("User cancelled the input dialog.")
-    else:
-        print(f"User entered: {goal}")
-        root.destroy()
-        main(goal)
+    main(goal, args.hard, args.cloud)

@@ -1,0 +1,56 @@
+2024-02-01 14:24:30
+ llava analysis: The computer screen shows a code editor with open source software, and there's an error message indicating an unexpected exception. 
+coaching response:goal='learning new programming languages' activity='coding' application='Sublime Text' productive=False explanation='Coding is not helping you accomplish your goal, buddy! Focus on learning new programming languages instead.'
+
+2024-02-01 14:24:50
+ llava analysis: Computer screen displaying open source code editor with a Python script open, showing syntax highlighting and the ability to run and debug the code. 
+coaching response:goal='automating a task on my computer' activity='writing code' application='Visual Studio Code' productive=True explanation="Looks like you're being very productive! Writing code is definitely helping you accomplish your goal."
+
+2024-02-01 14:24:59
+ llava analysis: The image displays a computer screen showing a code editor with an open Python script. The script includes import statements and contains several functions, suggesting that the user may be working on a programming project. The text in the script appears to be written in a language that uses curly braces to define blocks of code. 
+coaching response:goal='automating a task on my computer' activity='working on a programming project' application='code editor' productive=True explanation="Looks like you're making progress on your programming project! Keep up the good work."
+
+2024-02-01 14:25:06
+ llava analysis: The screen displays a computer interface with an open terminal window showing lines of text, which appear to be commands or instructions in a code editor. The terminal output indicates that the user is executing tasks on their system. 
+coaching response:goal='automating tasks on my computer' activity='executing commands' application='terminal' productive=True explanation="Looks like you're being productive there, buddy! 👍"
+
+2024-02-01 14:25:31
+ llava analysis: Screenshot of computer screen displaying a web browser with code open, showing an HTML file and its related CSS styles. 
+coaching response:goal='completing an HTML file' activity='coding' application='Visual Studio Code' productive=True explanation="Looks like you're making good progress on your HTML file! Keep up the good work."
+
+2024-02-01 14:25:38
+ llava analysis: The screen is displaying a social media interface with user interaction, showcasing a chat or message feed where people are sharing content. 
+coaching response:goal='completing work tasks' activity='using social media' application='Facebook' productive=False explanation='Social media will not help you accomplish your goals, focus on completing your work tasks instead.'
+
+2024-02-01 14:42:21
+ llava analysis: The screen shows an open file or project with a focus on code, possibly in Visual Studio or another code editor. There is an error message indicating a problem with the XML file referenced in a piece of code. A button is visible, which seems to be offering to help fix the issue. 
+coaching response:goal='work on a dev project' activity='working on a dev project' application='Visual Studio' productive=False explanation='You are working on a dev project, but the error message suggests you are not making progress. Focus on fixing the issue before continuing.'
+
+2024-02-01 14:42:37
+ llava analysis: The screen shows a computer program with a prompt and some text output. It appears to be an interface for running SQL commands, as indicated by the context of the output and the mention of "sql". 
+coaching response:goal='work on a dev project' activity='running SQL commands' application='SQL Server Management Studio' productive=False explanation='You are using SQL Server Management Studio, which is not helping you accomplish your goal of automating a task on your computer. Perhaps you should focus on more productive tasks.'
+
+2024-02-01 14:42:53
+ llava analysis: The computer screen displays a music streaming application with an album cover for "Time of Your Life" by the artist "Garth Brooks." The interface shows various music-related features such as playlists, songs, and album artwork. 
+coaching response:goal='work on a dev project' activity='using a music streaming application' application='Spotify' productive=False explanation="You are using an app that won't help you accomplish your goals, buddy! Focus on productive tasks instead."
+
+2024-02-01 14:43:05
+ llava analysis: The image shows a computer screen displaying a code editor with a Python script. The script contains print statements and some variable assignments, including the creation of a list. The text on the screen is too small to read in detail. 
+coaching response:goal='work on a dev project' activity='working on a dev project' application='code editor' productive=True explanation="Looks like you're making good progress on your dev project! Keep up the good work."
+
+2024-02-01 14:43:12
+ llava analysis: The computer screen displays an open source code editor with a Java program. 
+coaching response:goal='work on a dev project' activity='working on a dev project' application='code editor' productive=True explanation="Looks like you're making good progress on your dev project! Keep it up!"
+
+2024-02-01 14:43:19
+ llava analysis: The computer screen displays a command prompt window with text, possibly indicating an issue or error in executing some command. 
+coaching response:goal='work on a dev project' activity='working on a command prompt' application='Command Prompt' productive=False explanation="You are working on the command prompt, but you're not making progress towards your goal. You need to focus on solving the issue instead of just tinkering."
+
+2024-02-01 14:43:31
+ llava analysis: Computer screen with text that includes programming code and output, displaying the execution of a program in a terminal or console. 
+coaching response:goal='work on a dev project' activity='programming' application='terminal' productive=True explanation="Looks like you're making progress on your goal! Keep up the good work."
+
+2024-02-01 14:43:39
+ llava analysis: The computer screen is displaying a programming environment with a code editor open, showing a line of code. The programming language appears to be Python, as indicated by the syntax highlighting. A dialog box is visible at the bottom right corner of the screen, prompting the user for a file name or selection. 
+coaching response:goal='work on a dev project' activity='coding' application='PyCharm' productive=False explanation='You are coding, but not necessarily working towards your goal of developing a software tool.'
+
