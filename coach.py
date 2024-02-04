@@ -39,24 +39,13 @@ def coach_based_on_image_description(description, goal, cloud):
         deployment = replicate.deployments.get("cbh123/coach-llama")
         prediction = deployment.predictions.create(
             input={
-                "prompt": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if I'm being productive in line with my goals.
-Be loose with your definition of "productive" as long as it matches my goals.
+                "prompt": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
 
-## Example input
-Goal: work on a coding project
-Current activity: The image shows a computer screen with a browser open, and the user is watching YouTube.
-
-## Example output:
-"{{"
-    "productive": False, # This should be "true" if the activity is helping me accomplish my goal, otherwise "false"
-    "explanation": "You are on YouTube. YouTube will not help you accomplish your goals, buddy!", # This should be a helpful message, only required if I am not being productive
-"}}"
-
-## Actual input:
+## Current status
 Goal: {goal}
 Current activity: {description}
 
-## Actual output:""",
+## Your response:""",
                 "jsonschema": """{
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
@@ -78,41 +67,26 @@ Current activity: {description}
         )
         prediction.wait()
         result = "".join(prediction.output)
-        import pdb
-
-        pdb.set_trace()
-        # put result into a GoalExtract object
-        return GoalExtract.model_validate(result)
+        return GoalExtract.parse_raw(result)
 
     else:
         model = "ollama/mixtral"
         messages = [
             {
                 "role": "system",
-                "content": """You are a JSON extractor. Please extract the following JSON, No Talking at all.Just output JSON based on the description. NO TALKING AT ALL!!""",
+                "content": """You are a JSON extractor. Please extract the following JSON, No Talking at all. Just output JSON based on the description. NO TALKING AT ALL!!""",
             },
             {
                 "role": "user",
-                "content": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if I'm being productive in line with my goals.
-                Be loose with your definition of "productive" as long as it matches my goals.
+                "content": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
 
-                RULES: You must respond in JSON format. DO NOT RESPOND WITH ANY TALKING.
+RULES: You must respond in JSON format. DO NOT RESPOND WITH ANY TALKING.
 
-                ## Example input
-                Goal: work on a coding project
-                Current activity: The image shows a computer screen with a browser open, and the user is watching YouTube.
+## Current status:
+Goal: {goal}
+Current activity: {description}
 
-                ## Example output:
-                "{{"
-                    "productive": False, # This should be "true" if the activity is helping me accomplish my goal, otherwise "false"
-                    "explanation": "You are on YouTube. YouTube will not help you accomplish your goals, buddy!", # This should be a helpful message, only required if I am not being productive
-                "}}"
-
-                ## Actual input:
-                Goal: {goal}
-                Current activity: {description}
-
-                ## Actual output:""",
+## Result:""",
             },
         ]
 
