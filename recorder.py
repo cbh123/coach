@@ -14,6 +14,7 @@ os.makedirs(frames_dir, exist_ok=True)
 
 
 def screenshot():
+    start = time.time()
     # Take a screenshot using PyAutoGUI
     screenshot = pyautogui.screenshot()
 
@@ -33,8 +34,10 @@ def screenshot():
     path = f"{frames_dir}/screenshot_{timestamp}.jpg"
 
     # Save the frame as an image file
-    print(f"\n📸 Taking screenshot")
     cv2.imwrite(path, resized_img)
+    end = time.time()
+
+    print(f"\n📸 Took screenshot ({end - start:.2f}s)")
     return path
 
 

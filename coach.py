@@ -1,10 +1,8 @@
 import ollama
 import time
 import argparse
-import os
 from recorder import screenshot
 from utils import get_active_window_name, send_notification, send_slack_message
-import threading
 from pydantic import BaseModel
 from datetime import datetime
 from litellm import completion
@@ -12,6 +10,7 @@ import instructor
 import replicate
 import base64
 from instructor.patch import wrap_chatcompletion
+from halo import Halo
 
 completion = wrap_chatcompletion(completion, mode=instructor.Mode.MD_JSON)
 
@@ -33,41 +32,43 @@ class Activity(BaseModel):
     explanation: str = None
     iteration_duration: float = None
 
-
 def coach_based_on_image_description(description, goal, cloud):
-    start = time.time()
-    print("🧠 Coach is thinking...")
+    spinner = Halo(text='🧠 Coach is thinking...', spinner='dots')
+    spinner.start()
     if cloud:
-        event = replicate.stream(
-            "mistralai/mixtral-8x7b-instruct-v0.1",
-            input={
-                "prompt": f"""You are a productivity coach. You are helping me accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals. Coding is always productive. Social media isn't.
-## Rules
-Respond in a JSON format:
+        for attempt in range(3):  # Retry up to 3 times
+            try:
+                output = replicate.run("mistralai/mixtral-8x7b-instruct-v0.1:7b3212fbaf88310cfef07a061ce94224e82efc8403c26fc67e8f6c065de51f21",
+                    input={
+                        "prompt": f"""You are a productivity coach. You are helping me accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals. Coding is always productive. Social media isn't.
+    ## Rules
+    Respond in a JSON format:
 
-{{"productive": {{
-      "type": "boolean",
-      "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
-    }},
-    "explanation": {{
-      "type": "string",
-      "description": "This should be a helpful description of why I am not productive, only required if productive == false"
+    {{"productive": {{
+          "type": "boolean",
+          "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
+        }},
+        "explanation": {{
+          "type": "string",
+          "description": "This should be a helpful description of why I am not productive, only required if productive == false"
+        }}
     }}
-}}
 
-## Current status
-Goal: {goal}
-Current activity: {description}
+    ## Current status
+    Goal: {goal}
+    Current activity: {description}
 
-## Your response:""",
-            }
-        )
-        result = "".join([e.data for e in event]).strip()
-        clean_result = result.rstrip('}{') + '}'
-        end = time.time()
-        print(f"🧠 Coach took {end - start:.2f} seconds to think.")
-        return GoalExtract.model_validate_json(clean_result)
-
+    ## Your response:""",
+                    }
+                )
+                result = "".join([o for o in output]).strip()
+                clean_result = result.rstrip('}{') + '}'
+                record = GoalExtract.model_validate_json(clean_result)
+            except ValueError as e:
+                print(f"Attempt {attempt + 1}: Failed to validate JSON - {e}")
+                if attempt == 2:  # Last attempt
+                    raise ValueError("Failed to validate JSON after 3 attempts")
+                time.sleep(1)  # Wait a bit before retrying
     else:
         model = "ollama/mixtral"
         messages = [
@@ -95,11 +96,13 @@ Current activity: {description}
             max_retries=5,
             messages=messages,
         )
-
-        return record
+    spinner.stop()
+    return record
 
 
 def run_llava(image_path, model, prompt):
+    spinner = Halo(text=f'👀 Running Llava ({model})...', spinner='dots')
+    spinner.start()
     if "ollama" in model:
         model = model.split("/")[1]
         print(f"🦙 Running {model}")
@@ -115,22 +118,24 @@ def run_llava(image_path, model, prompt):
                 ],
             )
         result = response["message"]["content"]
-        return result
     else:
         with open(image_path, "rb") as file:
             image_data = file.read()
             encoded_image = base64.b64encode(image_data).decode("utf-8")
             image_uri = f"data:image/jpeg;base64,{encoded_image}"
 
-            output = replicate.run("yorickvp/llava-13b:e272157381e2a3bf12df3a8edd1f38d1dbd736bbb7437277c8b34175f8fce358",
+            deployment = replicate.deployments.get("cbh123/coach-small-llama")
+            prediction = deployment.predictions.create(
                 input={"image": image_uri, "prompt": prompt}
             )
-            # print(
-            #     f"⧗ Prediction status: https://replicate.com/predictions/{prediction.id}"
+            prediction.wait()
+            output = prediction.output
+            # output = replicate.run(model,
+            #     input={"image": image_uri, "prompt": prompt}
             # )
-            # prediction.wait()
-            # output = prediction.output
-        return "".join([x for x in output])
+        result = "".join([x for x in output])
+    spinner.stop()
+    return result
 
 
 
@@ -153,18 +158,19 @@ def main(goal, hard_mode, cloud):
 
         llava_prompt = "What is going on on this computer screen? Keep it very short and concise, and describe as matter of factly as possible."
         llava_model = (
-            "ollama/llava:34b-v1.6"
+            "ollama/llava:7b-v1.6-mistral-q4_0"
             if not cloud
-            else "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
+            else "yorickvp/llava-v1.6-mistral-7b:19be067b589d0c46689ffa7cc3ff321447a441986a7694c01225973c2eafc874"
         )
+        start = time.time()
+        llava_output = run_llava(latest_image, llava_model, llava_prompt)
+        end = time.time()
 
-        result = run_llava(latest_image, llava_model, llava_prompt)
-
-        print(f"👀 This is what I see for {latest_image}: {result}\n")
+        print(f"👀 Ask Llava ({end - start:.2f}s)\noutput: {llava_output} \nsource: {latest_image}\n")
 
         # create new Activity object
         activity = Activity(
-            activity=result,
+            activity=llava_output,
             application=get_active_window_name(),
             datetime=datetime.now(),
             image_path=latest_image,
@@ -172,16 +178,14 @@ def main(goal, hard_mode, cloud):
             prompt=llava_prompt,
         )
 
+        start = time.time()
         # Ask language model if this is a good idea considering the current goals
-        try:
-            coaching_response = coach_based_on_image_description(
-                result, goal, cloud
-            )
-        except Exception as e:
-            print(f"🚨 Error: {e}")
-            break
+        coaching_response = coach_based_on_image_description(
+            llava_output, goal, cloud
+        )
+        end = time.time()
 
-        print(f"💡 This is my advice: {coaching_response}")
+        print(f"🧠 Ask mixtral to decide if this is a good idea ({end - start:.2f}s)\noutput: {coaching_response}")
 
         activity.goal = goal
         activity.is_productive = coaching_response.productive
@@ -200,12 +204,13 @@ def main(goal, hard_mode, cloud):
                 )
 
 
-        iteration_end_time = time.time()  # End timing the iteration
-        activity.iteration_duration = iteration_end_time - iteration_start_time
 
         # save the activity to a file
         with open("./logs/activities.jsonl", "a") as f:
             f.write(activity.model_dump_json() + "\n")
+
+        iteration_end_time = time.time()  # End timing the iteration
+        activity.iteration_duration = iteration_end_time - iteration_start_time
         print(f"\n⏱ Iteration took {activity.iteration_duration:.2f} seconds.\n\n")
 
 
