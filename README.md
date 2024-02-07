@@ -11,25 +11,25 @@ Well, I procrastinate a lot. So I procrastinated by making a thing that helps me
 ![demo1](./readme_images/example1.png)
 ![demo2](./readme_images/example2.png)
 
-## How does it work?
+# How does it work?
 
-### First, give coach your goal.
+## First, give coach your goal.
 
 > python coach.py --goal "work on a coding project"
 
-### Take screenshots every 2s
+## Take screenshots every 2s
 
 https://github.com/cbh123/coach/assets/14149230/afb9e7fe-6a8c-49d7-bde0-cc9d3002a461
 
-### Ask Llava what it sees
+## Ask Llava what it sees
 
 ![llava](./readme_images/llava.png)
 
-### Ask MacOS what song is focused
+## Ask MacOS what song is focused
 
 `osascript -e 'tell application "System Events" to get the name of the first process whose frontmost is true'`
 
-### Track activities in a JSON file
+## Track activities in a JSON file
 
 Each activity is saved in this format:
 
@@ -54,7 +54,7 @@ You can already do interesting things with this data:
 
 ![chart](./readme_images/time.png)
 
-### Use a language model to decide whether current activity is productive
+## Use a language model to decide whether current activity is productive
 
 ![coach1](./readme_images/coach1.png)
 
