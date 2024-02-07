@@ -31,6 +31,23 @@ https://github.com/cbh123/coach/assets/14149230/afb9e7fe-6a8c-49d7-bde0-cc9d3002
 
 ### Track activities in a JSON file
 
+Each activity is saved in this format:
+
+```python
+Activity(
+    datetime: datetime
+    application: str
+    activity: str
+    image_path: str
+    model: str
+    prompt: str
+    goal: str = None
+    is_productive: bool = None
+    explanation: str = None
+    iteration_duration: float = None
+)
+```
+
 ![activities](./readme_images/activities.png)
 
 ```json
