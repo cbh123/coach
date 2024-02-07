@@ -12,6 +12,7 @@ folder = "frames"
 frames_dir = os.path.join(os.getcwd(), folder)
 os.makedirs(frames_dir, exist_ok=True)
 
+
 def record():
     while True:
         # Take a screenshot using PyAutoGUI
@@ -24,7 +25,7 @@ def record():
         screenshot_np = cv2.cvtColor(screenshot_np, cv2.COLOR_RGB2BGR)
 
         # Save the frame as an image file
-        print("📸 Say cheese! Saving frame.")
+        print("📸 Taking screenshot.")
 
         timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
         path = f"{frames_dir}/screenshot_{timestamp}.jpg"

@@ -39,7 +39,7 @@ def coach_based_on_image_description(description, goal, cloud):
         deployment = replicate.deployments.get("cbh123/coach-llama")
         prediction = deployment.predictions.create(
             input={
-                "prompt": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
+                "prompt": f"""You are a productivity coach. You are helping me accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
 
 ## Current status
 Goal: {goal}
@@ -122,6 +122,9 @@ def run_llava(image_path, model, prompt):
             image_data = file.read()
             encoded_image = base64.b64encode(image_data).decode("utf-8")
             image_uri = f"data:image/jpeg;base64,{encoded_image}"
+            print(
+                f"See prediction status: https://replicate.com/predictions?version=41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
+            )
             output = replicate.run(
                 model,
                 input={"image": image_uri, "prompt": prompt},
@@ -164,7 +167,7 @@ def main(goal, hard_mode, cloud):
             continue
 
         llava_model = (
-            "ollama/llava:v1.6"
+            "ollama/llava:34b-v1.6"
             if not cloud
             else "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
         )
@@ -208,7 +211,7 @@ def main(goal, hard_mode, cloud):
 
                 if hard_mode:
                     send_slack_message(
-                        f"🚨 CHARLIE IS PROCRASTINATING! 🚨 He said he wanted to work on {goal} but I see him {result}, which I've determined is not productive because {coaching_response.explanation}",
+                        f"🚨 CHARLIE IS PROCRASTINATING! 🚨 \nHe said he wanted to work on: {goal} but I see: {result}, which I've determined is not productive because: \n {coaching_response.explanation}",
                         latest_image,
                     )
 

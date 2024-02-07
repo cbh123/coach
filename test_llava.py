@@ -7,9 +7,9 @@ if __name__ == "__main__":
         description="Process command line arguments for coach.py"
     )
     parser.add_argument(
-        "--cloud",
+        "--local",
         action="store_true",
-        default=True,
+        default=False,
         help="Whether or not to run in the cloud",
     )
     args = parser.parse_args()
@@ -17,12 +17,12 @@ if __name__ == "__main__":
 
     image = "./frames/screenshot_2024-02-02_15-41-17.jpg"
 
-    if args.cloud:
+    if not args.local:
         print("Running on Replicate")
         model = "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
     else:
         print("Running locally")
-        model = "ollama/llava-v1.6"
+        model = "ollama/llava:34b-v1.6"
 
     prompt = "What is going on on this computer screen? Keep it very short and concise, and describe as matter of factly as possible."
     output = run_llava(image, model, prompt)
