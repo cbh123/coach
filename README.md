@@ -50,6 +50,9 @@ Activity(
 
 ![activities](./readme_images/activities.png)
 
+You can already do interesting things with this data:
+
+![chart](./readme_images/time.png)
 
 ### Use a language model to decide whether current activity is productive
 
@@ -96,7 +99,7 @@ And then we guarantee that the output is JSON:
 {"explanation": "Your current activity does not align with your stated goal of working on a coding project. Watching videos on YouTube is not actively contributing to the development of your coding skills or making progress on a specific project. It may be helpful to close unnecessary tabs and focus on opening the code editor or IDE to start making progress towards your goal.", "productive": false}
 ```
 
-# see it live!
+# See it live!
 
 `python coach.py --goal 'work on a coding project' --cloud`
 
@@ -107,9 +110,11 @@ OR remove cloud flag to run locally on Ollama:
 Optionally, activate hard mode:
 `python coach.py --goal 'work on a coding project' --cloud`
 
+# Future ideas
+What happens if you embed the text on your screen and see how far it is from distracting keywords?
 
 
-## todo
-- make a better llava example. fridge example.
-- for each step until final demo, screenshot or link to prediction?
-- add a list of the models that I'm using: llava, llama with function calling
+# Models
+- [Llava 1.6](https://replicate.com/yorickvp/llava-v1.6-mistral-7b)
+- [Mixtral](https://replicate.com/mistralai/mixtral-8x7b-instruct-v0.1)
+- [BGE embeddings](https://replicate.com/nateraw/bge-large-en-v1.5)
