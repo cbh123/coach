@@ -56,44 +56,41 @@ You can already do interesting things with this data:
 
 ## Use a language model to decide whether current activity is productive
 
-![coach1](./readme_images/coach1.png)
+```bash
+> python test_coach.py \
+>       --image_description "The computer screen displays a code editor with a file open, showing a Python script." \
+>       --goal "work on a coding project"
+>
+> productive=True explanation='Based on the information provided, it appears that you have a code editor open and are viewing a Python script, which aligns with your goal of working on a coding project. Therefore, your current activity is considered productive.'
+```
 
-![coach2](./readme_images/coach2.png)
+```bash
+> python test_coach.py \
+>       --image_description "The computer screen displays a web browser with YouTube Open" \
+>       --goal "work on a coding project"
+>
+> productive=False explanation='Watching videos on YouTube is not helping you work on your coding project. Try closing the YouTube tab and opening your coding project instead.'
+```
 
-Note: it's interesting how this works. It runs on Llama-2 70B with support for jsonschema. So, I provide the coach with a prompt:
+How do I guarantee that the output is JSON? Mixtral doesn't support function calling yet, so I just ask it nicely to give me JSON. I then use a library called [instructor](https://jxnl.github.io/instructor/) to retry if the output fails.
 
 ```python
 f"""You are a productivity coach. You are helping me accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
 
-## Current status
-Goal: {goal}
-Current activity: {description}
+## Rules
+Respond in a JSON format:
 
-## Your response:"""
-```
+{{"productive": {{
+        "type": "boolean",
+        "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
+    }},
+    "explanation": {{
+        "type": "string",
+        "description": "This should be a helpful description of why I am not productive, only required if productive == false"
+    }}
+}}
 
-And a JSON schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "productive": {
-      "type": "boolean",
-      "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
-    },
-    "explanation": {
-      "type": "string",
-      "description": "This should be a helpful description of why I am not productive, only required if productive == false"
-    }
-  },
-  "required": ["productive", "explanation"],
-  "additionalProperties": false
-}
-```
-
-And then we guarantee that the output is JSON:
+And then I ask guarantee that the output is JSON:
 
 ```json
 {"explanation": "Your current activity does not align with your stated goal of working on a coding project. Watching videos on YouTube is not actively contributing to the development of your coding skills or making progress on a specific project. It may be helpful to close unnecessary tabs and focus on opening the code editor or IDE to start making progress towards your goal.", "productive": false}
