@@ -2,7 +2,7 @@ import ollama
 import time
 import argparse
 import os
-from frames import record
+from recorder import record
 from utils import get_active_window_name, send_notification, send_slack_message
 import threading
 from pydantic import BaseModel
@@ -122,14 +122,14 @@ def run_llava(image_path, model, prompt):
             image_data = file.read()
             encoded_image = base64.b64encode(image_data).decode("utf-8")
             image_uri = f"data:image/jpeg;base64,{encoded_image}"
+            print(
+                f"See prediction status: https://replicate.com/predictions/{prediction.id}"
+            )
             deployment = replicate.deployments.get("cbh123/coach-llava")
             prediction = deployment.predictions.create(
                 input={"image": image_uri, "prompt": prompt}
             )
             prediction.wait()
-            print(
-                f"See prediction status: https://replicate.com/predictions/{prediction.id}"
-            )
             output = prediction.output
         return "".join([x for x in output])
 
@@ -228,7 +228,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Process command line arguments for coach.py"
     )
-    parser.add_argument("--record", action="store_true", help="Start recording")
     parser.add_argument("--goal", type=str, help="Enter your goal")
     parser.add_argument(
         "--hard", action="store_true", help="Whether or not to go hard mode"
@@ -239,9 +238,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.record:
-        record_thread = threading.Thread(target=record)
-        record_thread.start()
+    record_thread = threading.Thread(target=record)
+    record_thread.start()
 
     goal = args.goal if args.goal else None
 

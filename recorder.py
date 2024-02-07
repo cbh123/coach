@@ -30,11 +30,11 @@ def record():
         new_size = tuple([int(x * ratio) for x in frame.shape[1::-1]])
         resized_img = cv2.resize(frame, new_size, interpolation=cv2.INTER_LANCZOS4)
 
-        # Save the frame as an image file
-        print("📸 Taking screenshot.")
-
         timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
         path = f"{frames_dir}/screenshot_{timestamp}.jpg"
+
+        # Save the frame as an image file
+        print(f"📸 Taking screenshot: {path}")
         cv2.imwrite(path, resized_img)
         # Wait for 2 seconds
         time.sleep(2)
