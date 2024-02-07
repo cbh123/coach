@@ -79,7 +79,15 @@ And then we guarantee that the output is JSON:
 
 # see it live!
 
-`python `
+`python coach.py --goal 'work on a coding project' --cloud`
+
+OR remove cloud flag to run locally on Ollama:
+
+`python coach.py --goal 'work on a coding project'`
+
+Optionally, activate hard mode:
+`python coach.py --goal 'work on a coding project' --cloud`
+
 
 
 ## todo
