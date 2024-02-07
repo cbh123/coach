@@ -35,40 +35,38 @@ class Activity(BaseModel):
 
 
 def coach_based_on_image_description(description, goal, cloud):
+    start = time.time()
     print("🧠 Coach is thinking...")
     if cloud:
-        deployment = replicate.deployments.get("cbh123/coach-llama")
-        prediction = deployment.predictions.create(
+        event = replicate.stream(
+            "mistralai/mixtral-8x7b-instruct-v0.1",
             input={
                 "prompt": f"""You are a productivity coach. You are helping me accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals. Coding is always productive. Social media isn't.
+## Rules
+Respond in a JSON format:
+
+{{"productive": {{
+      "type": "boolean",
+      "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
+    }},
+    "explanation": {{
+      "type": "string",
+      "description": "This should be a helpful description of why I am not productive, only required if productive == false"
+    }}
+}}
 
 ## Current status
 Goal: {goal}
 Current activity: {description}
 
 ## Your response:""",
-                "jsonschema": """{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "productive": {
-      "type": "boolean",
-      "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
-    },
-    "explanation": {
-      "type": "string",
-      "description": "This should be a helpful description of why I am not productive, only required if productive == false"
-    }
-  },
-  "required": ["productive", "explanation"],
-  "additionalProperties": false
-}
-""",
             }
         )
-        prediction.wait()
-        result = "".join(prediction.output)
-        return GoalExtract.model_validate_json(result)
+        result = "".join([e.data for e in event]).strip()
+        clean_result = result.rstrip('}{') + '}'
+        end = time.time()
+        print(f"🧠 Coach took {end - start:.2f} seconds to think.")
+        return GoalExtract.model_validate_json(clean_result)
 
     else:
         model = "ollama/mixtral"
