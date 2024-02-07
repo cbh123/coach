@@ -199,7 +199,7 @@ def main(goal, hard_mode, cloud):
 
             if hard_mode:
                 send_slack_message(
-                    f"🚨 CHARLIE IS PROCRASTINATING! 🚨 \nHe said he wanted to work on: {goal} but I see: {result}, which I've determined is not productive because: \n {coaching_response.explanation}",
+                    f"🚨 CHARLIE IS PROCRASTINATING! 🚨 \nHe said he wanted to work on: {goal} but I see: {llava_output}, which I've determined is not productive because: \n {coaching_response.explanation}",
                     latest_image,
                 )
 
