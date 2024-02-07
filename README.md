@@ -107,6 +107,12 @@ OR remove cloud flag to run locally on Ollama:
 Optionally, activate hard mode:
 `python coach.py --goal 'work on a coding project' --cloud`
 
+Demo video:
+
+https://github.com/cbh123/coach/assets/14149230/4fe11e17-f521-411b-960e-e8ed0a98ebc3
+
+
+
 # Future ideas
 What happens if you embed the text on your screen and see how far it is from distracting keywords?
 
