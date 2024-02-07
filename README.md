@@ -50,9 +50,6 @@ Activity(
 
 ![activities](./readme_images/activities.png)
 
-```json
-{"datetime":"2024-02-07T10:41:49.612902","application":"Cursor","activity":" The image shows a computer screen with an open text editor displaying some code. It appears to be a Java or JavaScript file, as indicated by the syntax and structure of the text. The code includes comments that are likely instructions for the development team or notes about the code's purpose and functionality. Additionally, there is a message displayed above the code that seems to be an error or warning in a programming environment, typically a console output.\n\nThe specific details about the content of the code or the context of the error message are not clear from this image alone. ","image_path":"/Users/charlieholtz/workspace/dev/coach/frames/screenshot_2024-02-07_10-41-45.jpg","model":"ollama/llava:7b-v1.6-mistral-q4_0","prompt":"What is going on on this computer screen? Keep it very short and concise, and describe as matter of factly as possible.","goal":"work on a coding project","is_productive":true,"explanation":"Current activity shows an image of a computer screen with an open text editor displaying code, likely in Java or JavaScript, and a message displayed above the code which could be an error or warning. This appears to align with the goal of working on a coding project.","iteration_duration":null}
-```
 
 ### Use a language model to decide whether current activity is productive
 
