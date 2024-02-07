@@ -16,13 +16,14 @@ if __name__ == "__main__":
     image = get_latest_image()
 
     image = "./frames/screenshot_2024-02-02_15-41-17.jpg"
+    # image = "./frames/screenshot_2024-02-06_20-39-26.jpg"
+    # image = "./frames/screenshot_2024-02-06_20-47-48.jpg"
 
     if not args.local:
         print("Running on Replicate")
         model = "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
     else:
-        print("Running locally")
-        model = "ollama/llava:34b-v1.6"
+        model = "ollama/llava:v1.6"
 
     prompt = "What is going on on this computer screen? Keep it very short and concise, and describe as matter of factly as possible."
     output = run_llava(image, model, prompt)

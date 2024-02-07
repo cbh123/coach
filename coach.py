@@ -122,13 +122,15 @@ def run_llava(image_path, model, prompt):
             image_data = file.read()
             encoded_image = base64.b64encode(image_data).decode("utf-8")
             image_uri = f"data:image/jpeg;base64,{encoded_image}"
+            deployment = replicate.deployments.get("cbh123/coach-llava")
+            prediction = deployment.predictions.create(
+                input={"image": image_uri, "prompt": prompt}
+            )
+            prediction.wait()
             print(
-                f"See prediction status: https://replicate.com/predictions?version=41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174"
+                f"See prediction status: https://replicate.com/predictions/{prediction.id}"
             )
-            output = replicate.run(
-                model,
-                input={"image": image_uri, "prompt": prompt},
-            )
+            output = prediction.output
         return "".join([x for x in output])
 
 
