@@ -25,7 +25,7 @@ def screenshot():
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
     # Resize the image
-    max_size = 1000
+    max_size = 3000
     ratio = max_size / max(frame.shape[1], frame.shape[0])
     new_size = tuple([int(x * ratio) for x in frame.shape[1::-1]])
     resized_img = cv2.resize(frame, new_size, interpolation=cv2.INTER_LANCZOS4)
