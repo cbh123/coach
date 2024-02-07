@@ -19,7 +19,7 @@ Well, I procrastinate a lot. So I procrastinated by making a thing that helps me
 
 ### Take screenshots every 2s
 
-[!(screenshots)[https://github.com/cbh123/coach/assets/14149230/32081c83-8b0e-4ebf-8fe8-e929d7b747c]]
+https://github.com/cbh123/coach/assets/14149230/afb9e7fe-6a8c-49d7-bde0-cc9d3002a461
 
 ### Ask Llava what it sees
 
