@@ -19,8 +19,7 @@ Well, I procrastinate a lot. So I procrastinated by making a thing that helps me
 
 ### Take screenshots every 2s
 
-<video src="./readme_images/recorder.mp4" controls="controls" style="max-width: 730px;">
-</video>
+![screenshots](./readme_images/recorder.mp4)
 
 ### Ask Llava what it sees
 
