@@ -1,0 +1,14 @@
+# Replicate x Vercel AI Engineers!
+
+Agenda:
+- 5pm Welcome
+- 5:30pm — Pizza is delivered
+- 6pm - Lightning Talks
+    Charlie Holtz @charliebholtz - Replicate
+    João Moura @joaomdmoura - CrewAI
+    Alexandru Ţurcanu @pondorasti - emojis.sh
+    Zeke Sikelianos @zeke - Replicate
+    Nader Khalil @NaderLikeLadder — Brev.dev
+    Daniel Edrisian @DanielEdrisian — Eleven Labs
+    Lee Robinson @leerob - Vercel
+- 8pm - Get out of here. But don't call an uber directly to this location!

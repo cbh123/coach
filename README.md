@@ -1,6 +1,6 @@
 # ProcrastiCoach
 
-Hi. I'm charlie. I work at replicate. It's an api for running models.
+I work at [Replicate](https://replicate.com/home). It's an API for running models.
 
 One of the cool models is llava. llava is like an open source alternative to GPT vision. What can you do with llava? 🤔
 
