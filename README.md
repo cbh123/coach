@@ -118,6 +118,8 @@ What happens if you embed the text on your screen and see how far it is from dis
 
 `python ocr.py`
 
+https://github.com/straussmaximilian/ocrmac
+
 
 # Models
 - [Llava 1.6](https://replicate.com/yorickvp/llava-v1.6-mistral-7b)
