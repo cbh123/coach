@@ -25,7 +25,7 @@ https://github.com/cbh123/coach/assets/14149230/afb9e7fe-6a8c-49d7-bde0-cc9d3002
 
 ![llava](./readme_images/llava.png)
 
-## Ask MacOS what song is focused
+## Ask MacOS what app is focused
 
 `osascript -e 'tell application "System Events" to get the name of the first process whose frontmost is true'`
 
