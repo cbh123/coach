@@ -9,7 +9,7 @@ One of the cool models is llava. llava is like an open source alternative to GPT
 Well, I procrastinate a lot. So I procrastinated by making a thing that helps me stop procrastinating!
 
 ![demo1](./readme_images/example1.png)
-![demo2](./readme_images/example2.png)
+![Screenshot 2024-02-05 at 9 58 33 AM](https://github.com/cbh123/coach/assets/14149230/3b20c297-0fed-419e-9241-f187413b460a)
 
 # How does it work?
 
