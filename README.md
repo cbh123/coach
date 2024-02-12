@@ -1,4 +1,4 @@
-# ProcrastiCoach
+# Coach
 
 I work at [Replicate](https://replicate.com/home). It's an API for running models.
 
