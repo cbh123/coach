@@ -114,6 +114,8 @@ https://github.com/cbh123/coach/assets/14149230/4fe11e17-f521-411b-960e-e8ed0a98
 
 
 # Future ideas
+<img width="638" alt="Screenshot 2024-02-12 at 11 20 10 AM" src="https://github.com/cbh123/coach/assets/14149230/9864646f-b4ee-4fb3-b805-9df628acdf22">
+
 What happens if you embed the text on your screen and see how far it is from distracting keywords?
 
 `python ocr.py`
