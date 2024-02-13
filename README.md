@@ -4,6 +4,7 @@ I work at [Replicate](https://replicate.com/home). It's an API for running model
 
 One of the cool models is llava. llava is like an open source alternative to GPT vision. What can you do with llava? 🤔
 
+`prompt: what's in this fridge?`
 ![llava example](./readme_images/llava2.png)
 
 Well, I procrastinate a lot. So I procrastinated by making a thing that helps me stop procrastinating!
