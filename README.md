@@ -76,25 +76,32 @@ You can already do interesting things with this data:
 How do I guarantee that the output is JSON? Mixtral doesn't support function calling yet, so I just ask it nicely to give me JSON. I then use a library called [instructor](https://jxnl.github.io/instructor/) to retry if the output fails.
 
 ```python
-f"""You are a productivity coach. You are helping me accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
+        model = "ollama/mixtral"
+        messages = [
+            {
+                "role": "system",
+                "content": """You are a JSON extractor. Please extract the following JSON, No Talking at all. Just output JSON based on the description. NO TALKING AT ALL!!""",
+            },
+            {
+                "role": "user",
+                "content": f"""You are a productivity coach. You are helping my accomplish my goal of {goal}. Let me know if you think the description of my current activity is in line with my goals.
 
-## Rules
-Respond in a JSON format:
+RULES: You must respond in JSON format. DO NOT RESPOND WITH ANY TALKING.
 
-{{"productive": {{
-        "type": "boolean",
-        "description": "This should be 'true' if the activity is helping me accomplish my goal, otherwise 'false'"
-    }},
-    "explanation": {{
-        "type": "string",
-        "description": "This should be a helpful description of why I am not productive, only required if productive == false"
-    }}
-}}
+## Current status:
+Goal: {goal}
+Current activity: {description}
 
-And then I ask guarantee that the output is JSON:
+## Result:""",
+            },
+        ]
 
-```json
-{"explanation": "Your current activity does not align with your stated goal of working on a coding project. Watching videos on YouTube is not actively contributing to the development of your coding skills or making progress on a specific project. It may be helpful to close unnecessary tabs and focus on opening the code editor or IDE to start making progress towards your goal.", "productive": false}
+        record = completion(
+            model=model,
+            response_model=GoalExtract,
+            max_retries=5,
+            messages=messages,
+        )
 ```
 
 # See it live!
