@@ -112,6 +112,8 @@ OR remove cloud flag to run locally on Ollama:
 
 `python coach.py --goal 'work on a coding project'`
 
+(note that you will need to first [install ollama](https://ollama.com/) and then run `ollama pull llava:7b-v1.6-mistral-q4_0` to grab the model)
+
 Optionally, activate hard mode:
 `python coach.py --goal 'work on a coding project' --cloud`
 
